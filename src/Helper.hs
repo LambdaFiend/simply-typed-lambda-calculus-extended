@@ -83,10 +83,10 @@ genIndex ctx t = let tm = getTm t; fi = getFI t; genIndex' = genIndex ctx in
     _ -> (t, genIndex')
 
 
-deriveTm' :: TermNode -> TermNode
-deriveTm' t = traverseUpTm deriveTm t
+desugarTm' :: TermNode -> TermNode
+desugarTm' t = traverseUpTm desugarTm t
 
-deriveTm :: TermNode -> TermNode
-deriveTm (TermNode fi (TmSeq t1 t2)) = let ty = typeOf' t1 in
+desugarTm :: TermNode -> TermNode
+desugarTm (TermNode fi (TmSeq t1 t2)) = let ty = typeOf' t1 in
   TermNode fi $ TmApp (TermNode fi $ TmAbs "x" ty (shift' 0 1 t2)) t1
-deriveTm t = t
+desugarTm t = t

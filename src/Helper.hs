@@ -3,6 +3,9 @@ module Helper where
 import Syntax
 import Typing
 
+newtype UpdatedTmArrTm = UpdatedTmArrTm
+  { updateTmArrTm :: (TermNode, TermNode -> UpdatedTmArrTm) }
+
 traverseUpTm :: (TermNode -> TermNode) -> TermNode -> TermNode
 traverseUpTm f t = f $ TermNode fi $
   case tm of
@@ -79,8 +82,6 @@ genIndex ctx t = let tm = getTm t; fi = getFI t; genIndex' = genIndex ctx in
     TmAbs x ty t1 -> (t, genIndex (x:ctx))
     _ -> (t, genIndex')
 
-newtype UpdatedTmArrTm =
-  UpdatedTmArrTm { updateTmArrTm :: (TermNode, TermNode -> UpdatedTmArrTm) }
 
 deriveTm' :: TermNode -> TermNode
 deriveTm' t = traverseUpTm deriveTm t

@@ -35,6 +35,7 @@ typeOf ctx t =
     TmIsZero t1 -> checkNat TyBool tmIsZeroErr t1
     TmUnit -> TyUnit
     _ -> error ("No rule applies: " ++ showFileInfo fi)
+
   where tm = getTm t
         fi = getFI t
         typeOf' = typeOf ctx
@@ -58,11 +59,3 @@ getTypeFromContext :: Context -> Index -> Type
 getTypeFromContext ctx ind | ind < length ctx = snd $ (ctx !! ind)
                            | otherwise = error "TmVar: no type context for variable"
 
-
-tmAppErr1 tyT1 = "TmApp: expected TyArr, but got " ++ show tyT1
-tmAppErr2 tyT11 tyT2 = "TmApp: type mismatch, where tyT11 is " ++ show tyT11 ++ " and tyT2 is " ++ show tyT2
-tmIfErr1 tyT1 = "TmIf: expected bool, but got show" ++ show tyT1
-tmIfErr2 tyT2 tyT3 = "TmIf: type mismatch, where tyT2 is " ++ show tyT2 ++ " and tyT3 is " ++ show tyT3
-tmSuccErr tyT1 = "TmSucc: expected TyNat, but got " ++ show tyT1
-tmPredErr tyT1 = "TmPred: expected TyNat, but got " ++ show tyT1
-tmIsZeroErr tyT1 = "TmIsZero: expected TyNat, but got " ++ show tyT1

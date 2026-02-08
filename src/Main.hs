@@ -14,7 +14,7 @@ main = do
   let tok = alexScanTokens txt
   putStrLn $ show tok
   putStrLn ""
-  let ast = genIndex' $ desugarTm' $ parser tok
+  let ast = desugarTm' $ genIndex' $ parser tok
   putStrLn $ show ast
   putStrLn ""
   let str = showTm' $ ast

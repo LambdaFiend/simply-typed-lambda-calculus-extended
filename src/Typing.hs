@@ -32,6 +32,9 @@ typeOf ctx t =
     TmSeq t1 t2 -> let tyT1 = typeOf' t1 in check3 tyT1 TyUnit (typeOf' t2) $ tmSeqErr tyT1
     TmWildCard ty t1 -> TyArr ty $ typeOf' t1
     TmLet x t1 t2 -> typeOf ((x, typeOf' t1):ctx) t2
+    TmProj (TermNode _ (TmRecord ts)) x
+      | lookup x ts /= Nothing -> fromMaybeType $ lookup x (map (\(x, y) -> (x, typeOf' y)) ts)
+    TmRecord ts -> TyRecord $ map (\(x, y) -> (x, typeOf' y)) ts
     _ -> error ("No rule applies: " ++ showFileInfo fi)
 
   where tm = getTm t
@@ -42,15 +45,15 @@ typeOf ctx t =
         check2 :: Type -> Type -> String -> Type
         check2 ty1 ty2 err = check3 ty1 ty2 ty2 err
 
-        tmAppErr1 tyT1 = "TmApp: expected TyArr, but got " ++ showType tyT1
-        tmAppErr2 tyT11 tyT2 = "TmApp: type mismatch, where tyT11 is " ++ showType tyT11 ++ " and tyT2 is " ++ showType tyT2
-        tmIfErr1 tyT1 = "TmIf: expected bool, but got show" ++ showType tyT1
-        tmIfErr2 tyT2 tyT3 = "TmIf: type mismatch, where tyT2 is " ++ showType tyT2 ++ " and tyT3 is " ++ showType tyT3
-        tmSuccErr tyT1 = "TmSucc: expected TyNat, but got " ++ showType tyT1
-        tmPredErr tyT1 = "TmPred: expected TyNat, but got " ++ showType tyT1
-        tmIsZeroErr tyT1 = "TmIsZero: expected TyNat, but got " ++ showType tyT1
-        tmAscribeErr tyT1 ty = "TmAscribe: expected " ++ showType ty ++ " but got " ++ showType tyT1
-        tmSeqErr tyT1 = "TmSeq: expected TyUnit, but got " ++ showType tyT1
+        tmAppErr1 tyT1 = "TmApp: expected TyArr, but got " ++ showType tyT1 ++ showFileInfo fi
+        tmAppErr2 tyT11 tyT2 = "TmApp: type mismatch, where tyT11 is " ++ showType tyT11 ++ " and tyT2 is " ++ showType tyT2 ++ showFileInfo fi
+        tmIfErr1 tyT1 = "TmIf: expected bool, but got show" ++ showType tyT1 ++ showFileInfo fi
+        tmIfErr2 tyT2 tyT3 = "TmIf: type mismatch, where tyT2 is " ++ showType tyT2 ++ " and tyT3 is " ++ showType tyT3 ++ showFileInfo fi
+        tmSuccErr tyT1 = "TmSucc: expected TyNat, but got " ++ showType tyT1 ++ showFileInfo fi
+        tmPredErr tyT1 = "TmPred: expected TyNat, but got " ++ showType tyT1 ++ showFileInfo fi
+        tmIsZeroErr tyT1 = "TmIsZero: expected TyNat, but got " ++ showType tyT1 ++ showFileInfo fi
+        tmAscribeErr tyT1 ty = "TmAscribe: expected " ++ showType ty ++ " but got " ++ showType tyT1 ++ showFileInfo fi
+        tmSeqErr tyT1 = "TmSeq: expected TyUnit, but got " ++ showType tyT1 ++ showFileInfo fi
 
 getTypeFromContext :: Context -> Index -> Type
 getTypeFromContext ctx ind | ind < length ctx = snd $ (ctx !! ind)

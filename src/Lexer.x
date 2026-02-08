@@ -42,9 +42,11 @@ unit                   { \pos _ -> Token pos UNIT }
 "|"                    { \pos _ -> Token pos PIPE }
 case                   { \pos _ -> Token pos CASE }
 of                     { \pos _ -> Token pos OF }
+fix                    { \pos _ -> Token pos FIX }
 in                     { \pos _ -> Token pos IN }
 as                     { \pos _ -> Token pos AS }
 let                    { \pos _ -> Token pos LET }
+letrec                 { \pos _ -> Token pos LETREC }
 Nat                    { \pos _ -> Token pos TYNAT }
 Bool                   { \pos _ -> Token pos TYBOOL }
 Unit                   { \pos _ -> Token pos TYUNIT }
@@ -87,8 +89,10 @@ data TokenData
   | IN
   | AS
   | LET
+  | LETREC
   | CASE
   | OF
+  | FIX
   | TYARR
   | TYNAT
   | TYBOOL

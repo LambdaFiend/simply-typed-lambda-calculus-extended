@@ -51,6 +51,10 @@ typeOf ctx t =
             $ map (\((x, (y, z)), ty) -> typeOf ((y, ty):ctx) z)
             $ zip ts (map snd tys)
         _ -> error $ tmCaseErr1 tyT1
+    TmFix t1 -> let tyT1 = typeOf' t1 in
+      case tyT1 of
+        TyArr ty1 ty2 | ty1 == ty2 -> ty1
+        _ -> error $ "TmFix: tyT1 is not of type form T->T, instead it's " ++ showType tyT1 
     _ -> error ("No rule applies: " ++ showFileInfo fi)
 
   where tm = getTm t

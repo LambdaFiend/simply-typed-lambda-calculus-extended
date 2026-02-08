@@ -33,6 +33,7 @@ data Term
   | TmRecord [(Name, TermNode)]
   | TmVariant Name TermNode Type
   | TmCase TermNode [(Name, (Name, TermNode))]
+  | TmFix TermNode
   deriving (Eq, Show)
 
 data Type

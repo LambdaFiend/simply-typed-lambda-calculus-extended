@@ -29,6 +29,7 @@ traverseDownTm f t = TermNode fi $
     TmProj t1 x -> TmProj (traverseTm' t1) x
     TmVariant x t1 ty -> TmVariant x (traverseTm' t1) ty
     TmCase t1 ts -> TmCase (traverseTm'' t1) $ map (\(x, (y, z)) -> (x, (y, traverseTm' z))) ts
+    TmFix t1 -> TmFix $ traverseTm' t1
   where tm = getTm t'
         fi = getFI t'
         traverseTm'  = traverseDownTm f'

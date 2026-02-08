@@ -30,7 +30,7 @@ showTm ctx t = let tm = getTm t in
     TmUnit -> "unit"
     TmAscribe t1 ty -> "(" ++ showTm' t1 ++ " as " ++ showType ty ++ ")"
     TmSeq t1 t2 -> "(" ++ showTm' t1 ++ ";" ++ showTm' t2 ++ ")"
-    TmWildCard ty t2 -> "(" ++ "λ_:" ++ showType ty ++ "." ++ showTm' t2 ++ ")"
+    TmWildCard ty t2 -> "(" ++ "λ_:" ++ showType ty ++ "." ++ showTm ("":ctx) t2 ++ ")"
     TmLet p t1 t2 -> let p' = map (fixName ctx) $ namesOfPattern p in
       "(let " ++ showPattern ctx p ++ " = " ++ showTm' t1 ++ " in " ++ showTm (p' ++ ctx) t2 ++ ")"
     TmRecord ts ->
@@ -45,6 +45,7 @@ showTm ctx t = let tm = getTm t in
     TmCase t1 ts ->
       "(case " ++ showTm' t1 ++ " of \n"
       ++ "    " ++ (intercalate "\n  | " (map (\(x, (y, z)) -> "<" ++ x ++ ", " ++ y ++ "> -> " ++ showTm (y:ctx) z) ts)) ++ ")"
+    TmFix t1 -> "(fix " ++ showTm' t1 ++ ")"
   where showTm' = showTm ctx
         fixName' = fixName ctx
         tmVarErr l ctxLength = "TmVar: bad context length: " ++ show l ++ "/=" ++ show ctxLength

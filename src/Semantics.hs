@@ -82,6 +82,8 @@ eval1 t = let tm = getTm t; fi = getFI t in
     TmCase (TermNode _ (TmVariant x v1 ty)) ts ->
       let match = snd $ fromMaybe $ lookup x ts
        in getTm $ evalSubst v1 match
+    TmFix (TermNode _ (TmAbs x ty t2)) -> getTm $  evalSubst t t2
+    TmFix t1 -> TmFix $ eval1 t1
     _ -> error ("No rule applies: " ++ showFileInfo fi)
 
 

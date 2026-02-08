@@ -38,8 +38,10 @@ unit       { Token pos UNIT }
 in         { Token pos IN }
 as         { Token pos AS }
 let        { Token pos LET }
+letrec     { Token pos LETREC }
 case       { Token pos CASE }
 of         { Token pos OF }
+fix        { Token pos FIX }
 tynat      { Token pos TYNAT }
 tybool     { Token pos TYBOOL }
 tyunit     { Token pos TYUNIT }
@@ -54,6 +56,7 @@ Term
   : IfTE      { $1 }
   | Abst      { $1 }
   | Let       { $1 }
+  | Letrec    { $1 }
   | ProjSeq   { $1 }
   | BeginCase { $1 }
 
@@ -61,8 +64,8 @@ BeginCase
   : case Term of ContinueCase { TermNode (tokenPos $1) $ TmCase $2 $4 }
 
 ContinueCase
-  : "<" Name "=" Var ">" "->" ProjSeq "|" ContinueCase { [(snd $2, (snd $4, $7))] ++ $9 }
-  | "<" Name "=" Var ">" "->" ProjSeq                  { [(snd $2, (snd $4, $7))] }
+  : "<" Name "=" Name ">" "->" ProjSeq "|" ContinueCase { [(snd $2, (snd $4, $7))] ++ $9 }
+  | "<" Name "=" Name ">" "->" ProjSeq                  { [(snd $2, (snd $4, $7))] }
 
 
 ProjSeq
@@ -78,13 +81,16 @@ AscrApp
 
 
 Atom
-  : Value           { $1 }
-  | Succ            { $1 }
-  | Pred            { $1 }
-  | IsZero          { $1 }
-  | "(" Term ")"    { $2 }
-  | "{" Record "}"  { TermNode (tokenPos $1) $ TmRecord $2 }
-  | Variant         { $1 }
+  : Value          { $1 }
+  | Succ           { $1 }
+  | Pred           { $1 }
+  | IsZero         { $1 }
+  | "(" Term ")"   { $2 }
+  | "{" Record "}" { TermNode (tokenPos $1) $ TmRecord $2 }
+  | Variant        { $1 }
+  | Fix            { $1 }
+
+Fix : fix "(" Term ")" { TermNode (tokenPos $1) $ TmFix $3 }
 
 Variant
   : "<" Name "=" Term ">" as Type { TermNode (tokenPos $1) $ TmVariant (snd $2) $4 $7 }
@@ -100,7 +106,7 @@ Value
   | false { TermNode (tokenPos $1) TmFalse }
   | "0"   { TermNode (tokenPos $1) TmZero }
   | unit  { TermNode (tokenPos $1) TmUnit }
-  | Var   { TermNode (fst $1) $ TmVarRaw (snd $1) }
+  | Name  { TermNode (fst $1) $ TmVarRaw (snd $1) }
 
 Name
   : Id  { $1 }
@@ -141,7 +147,7 @@ Abst
   | "\\" "_" ":" TypeArr "." Term { TermNode (tokenPos $1) $ TmWildCard $4 $6 }
 
 Pattern
-  : Var                   { PVar $ snd $1 }
+  : Name                  { PVar $ snd $1 }
   | "{" PatternRecord "}" { PRecord $2 }
   
 PatternRecord
@@ -153,6 +159,8 @@ PatternRecord
 IfTE : if Term then Term else Term { TermNode (tokenPos $1) $ TmIf $2 $4 $6 }
 
 Let : let Pattern "=" Term in Term { TermNode (tokenPos $1) $ TmLet $2 $4 $6 }
+
+Letrec : letrec Name ":" TypeArr "=" Term in Term { TermNode (tokenPos $1) $ TmLet (PVar $ snd $2) (TermNode (tokenPos $1) $ TmFix (TermNode (tokenPos $1) $ TmAbs (snd $2) $4 $6)) $8 }
 
 Succ : succ Atom { TermNode (tokenPos $1) $ TmSucc $2 }
 

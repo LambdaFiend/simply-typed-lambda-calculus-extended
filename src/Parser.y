@@ -169,6 +169,7 @@ TypeRecord
 Abst
   : "\\" Var ":" TypeArr "." Term { TermNode (tokenPos $1) $ TmAbs (snd $2) $4 $6 }
   | "\\" "_" ":" TypeArr "." Term { TermNode (tokenPos $1) $ TmWildCard $4 $6 }
+  | "\\" Var "." Term             { TermNode (tokenPos $1) $ TmAbs (snd $2) TyUnknown $4 }
 
 Pattern
   : Name                  { PVar $ snd $1 }

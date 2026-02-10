@@ -49,6 +49,8 @@ data Type
   | TyRecord [(Name, Type)]
   | TyVariant [(Name, Type)]
   | TyList Type
+  | TyVar Int
+  | TyUnknown
   deriving (Eq, Show)
 
 data Pattern

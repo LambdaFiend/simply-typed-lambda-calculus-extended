@@ -89,6 +89,8 @@ showType ty =
         $ zip tys [1..])
       ++ ">"
     TyList ty -> "(List " ++ showType ty ++ ")"
+    TyUnknown -> "Unk"
+    TyVar n -> "α" ++ show n
 
 showPattern :: [Name] -> Pattern -> String
 showPattern ctx p =

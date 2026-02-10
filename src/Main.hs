@@ -20,7 +20,8 @@ main = do
   let str = showTm' $ ast
   putStrLn str
   putStrLn ""
-  let typ = typeOf' ast
+--  let typ = typeOf' ast
+  let typ = snd $ inferT' $ ast
   putStrLn $ showType typ
   putStrLn ""
  -- let new = showTm' $ eval1 ast

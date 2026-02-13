@@ -26,7 +26,7 @@ isVal t = let tm = getTm t in
 isPattern :: TermNode -> Bool
 isPattern t = let tm = getTm t in
   case tm of
-    TmVar _ _ -> True
+    TmVar _ _ _ -> True
     TmRecord ts -> and $ map (isPattern . snd) ts
     _ -> False
 
@@ -84,9 +84,19 @@ eval1 t = let tm = getTm t; fi = getFI t in
     TmHead ty t1 | not $ isVal t1 -> TmHead ty $ eval1 t1
     TmTail _ (TermNode _ (TmCons _ v1 v2)) | isVal v1 && isVal v2 -> getTm v2
     TmTail ty t1 | not $ isVal t1 -> TmTail ty $ eval1 t1 
-    _ -> error ("No rule applies: " ++ showFileInfo fi)
+    _ -> TmErr $ "No rule applies" ++ showFileInfo fi
 
+type Counter = Int
 
-eval :: TermNode -> TermNode
-eval t | isVal t   = t
-       | otherwise = eval $ eval1 t
+eval' :: TermNode -> (Counter, TermNode)
+eval' t = eval 0 t
+
+eval :: Counter -> TermNode -> (Counter, TermNode)
+eval n t@(TermNode _ (TmErr e)) = (n, t)
+eval n t | isVal t   = (n, t)
+         | otherwise = eval (n + 1) $ eval1 t
+
+evalN :: Counter -> TermNode -> (Counter, TermNode)
+evalN n t@(TermNode _ (TmErr e)) = (n, t)
+evalN n t | n <= 0 || isVal t = (n, t)
+          | otherwise         = evalN (n - 1) $ eval1 t

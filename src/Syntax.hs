@@ -13,7 +13,7 @@ data TermNode = TermNode
   deriving (Eq, Show)
 
 data Term
-  = TmVar Index Index
+  = TmVar Index Index Name
   | TmVarRaw Name
   | TmAbs Name Type TermNode
   | TmApp TermNode TermNode
@@ -39,6 +39,7 @@ data Term
   | TmIsNil Type TermNode
   | TmHead Type TermNode
   | TmTail Type TermNode
+  | TmErr String
   deriving (Eq, Show)
 
 data Type
@@ -51,6 +52,7 @@ data Type
   | TyList Type
   | TyVar Int
   | TyUnknown
+  | TyErr String
   deriving (Eq, Show)
 
 data Pattern
@@ -80,3 +82,4 @@ namesOfPattern p =
   case p of
     PVar x -> [x]
     PRecord ps -> concat $ map (namesOfPattern . snd) ps
+

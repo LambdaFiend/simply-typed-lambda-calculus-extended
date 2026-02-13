@@ -4,7 +4,7 @@ module Lexer where
 
 %wrapper "posn"
 
-$white = [\ \t\n\r]
+$white = [\ \t\n\r\b]
 $digit = [0-9]
 $lower = [a-z]
 $alpha = [a-zA-Z]
@@ -61,6 +61,7 @@ Unit                   { \pos _ -> Token pos TYUNIT }
 $digit+                { \pos s -> Token pos (NUM $ read s) }
 $lower("\'")*          { \pos s -> Token pos $ VAR s }
 $alpha($alphaNum|"_")* { \pos s -> Token pos $ ID s }
+.                      { \pos s -> Token pos $ ERR ("Lexing error: " ++ s) }
 
 {
 data Token = Token
@@ -116,5 +117,7 @@ data TokenData
   | NUM Int
   | VAR String
   | ID String
+  | ERR String
   deriving (Show, Eq)
 }
+

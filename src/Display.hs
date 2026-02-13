@@ -5,15 +5,15 @@ import Lexer
 import Data.List
 
 showTm' :: TermNode -> String
-showTm' t = showTm [] t
+showTm' t = removeOuterParens $ showTm [] t
 
 showTm :: [Name] -> TermNode -> String
 showTm ctx t = let tm = getTm t in
   case tm of
-    TmVar k l -> let ctxLength = length ctx in
+    TmVar k l x -> let ctxLength = length ctx in
       if (l == ctxLength)
-        then getNameFromContext ctx k
-        else error $ tmVarErr l ctxLength
+        then getNameFromContext ctx k x
+        else tmVarErr l ctxLength
     TmAbs x ty t1 ->
       let x' = fixName' x
        in "(" ++ "λ" ++ x' ++ ":" ++ showType ty ++ "." ++ showTm (x':ctx) t1 ++ ")"
@@ -53,11 +53,11 @@ showTm ctx t = let tm = getTm t in
     TmTail ty t1 -> "(tail[" ++ showType ty ++ "] " ++ showTm' t1 ++ ")"
   where showTm' = showTm ctx
         fixName' = fixName ctx
-        tmVarErr l ctxLength = "TmVar: bad context length: " ++ show l ++ "/=" ++ show ctxLength
+        tmVarErr l ctxLength = "#TmVar: bad context length: " ++ show l ++ "/=" ++ show ctxLength ++ "#"
 
-getNameFromContext :: [Name] -> Index -> Name
-getNameFromContext ctx ind | ind < length ctx = ctx !! ind
-                           | otherwise = error "TmVar: no name context for var"
+getNameFromContext :: [Name] -> Index -> Name -> Name
+getNameFromContext ctx ind x | ind < length ctx = ctx !! ind
+                             | otherwise = x --"#TmVar: no name context for var#"
 
 fixName :: [Name] -> Name -> Name
 fixName ctx x | (length $ filter ((==) x) ctx) < 1 = x
@@ -67,7 +67,10 @@ showFileInfo :: FileInfo -> String
 showFileInfo (AlexPn p l c) =
   "\n" ++"Absolute Offset: " ++ show p ++ "\n"
   ++ "Line: " ++ show l ++ "\n"
-  ++ "Column: " ++ show c ++ "\n"
+  ++ "Column: " ++ show c
+
+showType' :: Type -> String
+showType' ty = removeOuterParens $ showType ty
 
 showType :: Type -> String
 showType ty =
@@ -75,7 +78,7 @@ showType ty =
     TyNat -> "Nat"
     TyBool -> "Bool"
     TyUnit -> "Unit"
-    TyArr ty1 ty2 -> "(" ++ showType ty1 ++ "->" ++ showType ty2 ++ ")"
+    TyArr ty1 ty2 -> "(" ++ showType ty1 ++ " -> " ++ showType ty2 ++ ")"
     TyRecord tys ->
       "{"
       ++ (intercalate ", "
@@ -90,7 +93,7 @@ showType ty =
       ++ ">"
     TyList ty -> "(List " ++ showType ty ++ ")"
     TyUnknown -> "Unk"
-    TyVar n -> "α" ++ show n
+    TyVar n -> "t" ++ show n
 
 showPattern :: [Name] -> Pattern -> String
 showPattern ctx p =
@@ -102,3 +105,15 @@ showPattern ctx p =
         $ map (\((x, y), k) -> (if (show k /= x) then x ++ " : " else "") ++ showPattern ctx y)
         $ zip ps [1..])
       ++ "}"
+
+removeOuterParens :: String -> String
+removeOuterParens xs
+  | length xs >= 2 =
+    let xs' = reverse $ getTail xs
+     in
+      if getHead xs == '(' && getHead xs' == ')'
+        then reverse $ getTail xs'
+        else xs
+  | otherwise = xs
+  where getHead = (\(x:_) -> x)
+        getTail = (\(_:xs) -> xs)

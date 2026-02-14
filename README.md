@@ -14,7 +14,7 @@ If warnings appear, fix them! In case you're required to install a missing depen
 
 It's very likely to be a missing dependency - that is, the issue - so this should suffice.
 
-**You need cabal in order to use this, as you may have already noticed.**
+**You need cabal and GHC in order to use this, as you may have already noticed.**
 
 Once you're running the program, write ```:?``` and press enter - it should give you about half the indications you need.
 

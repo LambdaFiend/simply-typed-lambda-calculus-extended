@@ -25,7 +25,7 @@ As for the other half, I suggest taking a look at **Benjamin Pierce's "Types and
 I'm going to show each construct and its meaning in a very informal manner.
 
 | Syntax                | Semantic        | Type      |
-|:---------------------:|:---------------:|:---------:|
+|:---------------------:|:---------------|:---------:|
 | true                  | true value      | Bool |
 | false                 | false value     | Bool |
 | if t1 then t2 else t3 | if statement<br>both possible outputs must be of the same type<br>and the condition has to be a boolean | Bool, where t1 has type Bool and T2 = T3, where type of t2 is T2 and type of t3 is T3 |

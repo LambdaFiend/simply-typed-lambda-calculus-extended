@@ -12,7 +12,7 @@ If warnings appear, fix them! In case you're required to install a missing depen
 
 ```cabal install --lib <library_name>```
 
-It's very likely to be a missing dependency - that is, the issue - so this should suffice.
+The issue is very likely to be a missing dependency so this should suffice.
 
 **You need cabal and GHC in order to use this, as you may have already noticed.**
 

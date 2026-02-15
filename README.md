@@ -73,19 +73,19 @@ List T is the list type where the elements of a list are all of type T.
 | Command(s) | Usage | Description |
 |------------|-------|------------|
 | *(All commands)* | — | Command names (the first token of the command) are not case sensitive. |
-| :var, :v, :assign, :a | :v <var_name> | Assign a written term to <var_name>. |
-| :type, :ty, :t | :t <var_name> | Show the type of the term assigned to <var_name>. |
-| :eval, :ev, :e | :e <var_name> | Fully evaluate the term from <var_name>. |
+| :var, :v, :assign, :a | :v \<var_name\> | Assign a written term to <var_name>. |
+| :type, :ty, :t | :t \<var_name\> | Show the type of the term assigned to <var_name>. |
+| :eval, :ev, :e | :e \<var_name\> | Fully evaluate the term from <var_name>. |
 | :evaln, :evn, :en | :en <number_of_steps> <var_name> | Evaluate (<number_of_steps>) n-steps the term from <var_name>. |
 | :help, :h, :? | :h | Display information regarding the commands. |
-| :show, :sh, :s | :s <var_name> | Show the term assigned to <var_name>. |
+| :show, :sh, :s | :s \<var_name\> | Show the term assigned to <var_name>. |
 | :desugar, :desug, :des, :d | :d <var_name1> <var_name2> | Desugar the term from <var_name1> and place it into <var_name2>. |
-| :var, :v, :assign, :a (+ eval) | :v <var_name1> :ev <var_name2> | Evaluate from the current environment (given <var_name2>) and store into <var_name1>. |
-| :var, :v, :assign, :a (+ evaln) | :v <var_name1> :evn <number_of_steps> <var_name2> | Evaluate n-steps from the current environment and store into <var_name1>. |
-| :load, :l | :l <file_path> | Load terms from file at <file_path>, assigned as `<var_name> := <expression>`, and load into the environment. |
+| :var, :v, :assign, :a, :eval | :v <var_name1> :ev <var_name2> | Evaluate from the current environment (given <var_name2>) and store into <var_name1>. |
+| :var, :v, :assign, :a, :evaln | :v <var_name1> :evn <number_of_steps> <var_name2> | Evaluate n-steps from the current environment and store into <var_name1>. |
+| :load, :l | :l \<file_path\> | Load terms from file at <file_path>, assigned as `<var_name> := <expression>`, and load into the environment. |
 | :v?, :vars | :v? | Show the first page (10 environment variables) if a number is not specified. |
-| :v?, :vars | :v? <number> | Show the <number>'th page (containing 10 environment variables' names). |
-| :m, :mv, :move | :mv <var_name1> <var_name2> | Store the contents of <var_name2> into <var_name1>. |
+| :v?, :vars | :v? \<number\> | Show the <number>'th page (containing 10 environment variables' names). |
+| :m, :mv, :move | :mv \<var_name1\> \<var_name2\> | Store the contents of <var_name2> into <var_name1>. |
 | :q, :quit | :q | Close the REPL. |
 | :te, :tenv, :testenv | :testenv | Attempt to type all variables in the environment. |
 | :ee, :eenv, :evalenv | :evalenv | Attempt to evaluate all variables in the environment. |
@@ -93,7 +93,7 @@ List T is the list type where the elements of a list are all of type T.
 | :de, :denv, :desenv, :desugenv, :desugarenv | :de | Desugar all variables in the environment. |
 | :av?, :allvars | :av? | Show all variables in the environment. |
 | :showenv, :showe, :senv, :se | :se | Show the environment. |
-| :showenv, :showe, :senv, :se | :se <page_number> | Show a specific environment page. |
-| :te, :tenv, :testenv | :te <page_number> | Type a specific environment page. |
-| :ee, :eenv, :evalenv | :ee <page_number> | Evaluate a specific environment page. |
+| :showenv, :showe, :senv, :se | :se \<page_number\> | Show a specific environment page. |
+| :te, :tenv, :testenv | :te \<page_number\> | Type a specific environment page. |
+| :ee, :eenv, :evalenv | :ee \<page_number\> | Evaluate a specific environment page. |
 | *(Environment pages)* | — | Page numbers start at 1. |

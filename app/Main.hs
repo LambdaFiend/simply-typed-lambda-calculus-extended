@@ -784,7 +784,7 @@ printType ast = do
           setSGR [SetColor Foreground Vivid Blue]
           putStrLn "Its principal type:"
           setSGR [Reset]
-          putStrLn $ showType $ snd ty
+          putStrLn $ showType' $ snd ty
           return $ Right ""
     inf | inf == Infer AlgorithmW || inf == OnlyInfer AlgorithmW -> do
       case inferW' ast of
@@ -805,7 +805,7 @@ printType ast = do
           setSGR [SetColor Foreground Vivid Blue]
           putStrLn "Its principal type:"
           setSGR [Reset]
-          putStrLn $ showType $ snd ty
+          putStrLn $ showType' $ snd ty
           return $ Right ""
 
 printTerm :: TermNode -> IO (Either String String)

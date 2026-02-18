@@ -4,6 +4,8 @@ inferW1 := let i = \y.\x.x y in i i
 
 inferW2 := let x = \z.\y.z y y in x x
 
+inferW2' := let x = \y.\z.z y y in x x
+
 inferW3 := let x = \z.\w.z w in λz.z (x x)
 
 comm := "absInferErr is supposed to be a type error,

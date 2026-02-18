@@ -506,6 +506,7 @@ getTxtFromFile file = do
 
 getTxtFromInput :: IO String
 getTxtFromInput = do
+  putStrLn "Press Ctrl-D to submit the program"
   txt <- readUntil' '\4'
   putStrLn ""
   return txt

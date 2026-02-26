@@ -60,11 +60,11 @@ Don't forget to check the ```programs/default_tests.txt``` file, as it contains 
 
 There are two primitive types: Bool, Nat and Unit. Bool is for booleans, Nat is for natural numbers, starting from 0, and Unit is for unit (with not real application besides sequencing, here). Then there are type variables, which are only used for type inference; they are written as a "t" followed by some number starting from 1.
 
-{l1:T1, ..., ln:Tn} is the product type, for records.
+{l1:T1, ..., ln:Tn} is related to the product type, more particularly it regards records.
 
-\<l1:T1, ..., ln:Tn\> is the sum type, for variants.
+\<l1:T1, ..., ln:Tn\> is related to the sum type, more particularly it regards variants.
 
-T->T' is the type arrow, for abstractions typically.
+T->T' is the type arrow, it comes from abstractions typically.
 
 List T is the list type where the elements of a list are all of type T.
 

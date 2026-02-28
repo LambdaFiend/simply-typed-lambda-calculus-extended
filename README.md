@@ -4,7 +4,7 @@
 **YALCI** is a Haskell implementation of **System F** with a variety of extensions, type checking and inference (**Algorithm T**, as of yet). Initially made as what's described but only for **STLC**, **Simply Typed Lambda Calculus**.
 
 ## Instructions
-The steps for setting up this project are as follows:
+The steps for setting YALCI up are as follows:
 
 ```cabal build```
 

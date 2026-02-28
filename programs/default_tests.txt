@@ -109,3 +109,109 @@ sum2 :=
           else succ (p (pred m) n)
   in
     p (succ (succ 0)) (succ 0)
+
+piercefullpoly1 := lambda X. lambda x:X. x
+
+piercefullpoly2 := (lambda X. lambda x:X. x) [All X.X->X]
+
+piercefullpoly3 := {*All Y.Y, lambda x:(All Y.Y). x} as {Some X,X->X}
+
+piercefullpoly4 := lambda x:Bool. x
+
+piercefullpoly5 := (lambda x:Bool->Bool. if x false then true else false) 
+  (lambda x:Bool. if x then false else true)
+
+piercefullpoly6 := lambda x:Nat. succ x
+
+piercefullpoly7 := (lambda x:Nat. succ (succ x)) (succ 0)
+
+piercefullpoly8 := {x=true, y=false}
+
+piercefullpoly9 := {x=true, y=false}.x
+
+piercefullpoly10 := {true, false}
+
+piercefullpoly11 := {true, false}.1
+
+piercefullpoly12 := {*Nat, {c=0, f=lambda x:Nat. succ x}}
+  as {Some X, {c:X, f:X->Nat}}
+
+piercefullpoly13 := let {X,ops} = {*Nat, {c=0, f=lambda x:Nat. succ x}}
+              as {Some X, {c:X, f:X->Nat}}
+in (ops.f ops.c)
+
+piercefullpoly14 := lambda f:Nat->Nat. lambda x:Nat. f (f x)
+
+piercefullpoly15 := unit
+
+piercefullpoly16 := let x=true in x
+
+piercefullpoly17 := lambda x:A. x
+
+systemF1 := \X.\x:X.x
+
+systemF2 := \X.\x:X.\Y.\y:Y.x
+
+systemF3 :=
+  (\Y.\x:All X.X->Nat.\y:Y.x[Y]y)
+    [Bool] (\Z.\x:Z.0)
+    true
+
+piercearith1 := true
+
+piercearith2 := if false then true else false
+
+piercearith3 := 0
+
+piercearith4 := succ (pred 0)
+
+piercearith5 := iszero (pred (succ (succ 0)))
+
+piercesimplebool1 := lambda x:Bool. x
+piercesimplybool2 :=
+  (lambda x:Bool->Bool. if x false then true else false) 
+    (lambda x:Bool. if x then false else true)
+
+pierceuntyped1 := x
+
+pierceuntyped2 := lambda x. x
+
+pierceuntyped3 := (lambda x. x) (lambda x. x x)
+
+piercereconbase1 := lambda x:Bool. x
+
+piercereconbase2 :=
+  (lambda x:Bool->Bool. if x false then true else false) 
+    (lambda x:Bool. if x then false else true)
+
+piercereconbase3 := lambda x:Nat. succ x
+
+piercereconbase4 := (lambda x:Nat. succ (succ x)) (succ 0)
+
+piercereconbase5 := lambda x:A. x
+
+piercerecon1 := (lambda x:X. lambda y:X->X. y x)
+
+piercerecon2 := (lambda x:X->X. x 0) (lambda y:Nat. y)
+
+piercefull1 := iszero (pred (succ (succ 0)))
+
+piercerandom1 := lambda x:<a:Bool,b:Bool>.x
+
+piercerandom2 := let f = lambda x. x in (f f) (f 0)
+
+piercerandom3 := let g = lambda x. (\f.\x.f x) in g (g g)
+
+piercefomega1 := (lambda X. lambda x:X. x) [All X.X->X]
+
+piercediverge :=
+  lambda X.
+    lambda _:Unit.
+    fix (lambda x:X. x)
+
+pierceexistential1 := {*Nat, {c=0, f=lambda x:Nat. succ x}}
+  as {Some X, {c:X, f:X->Nat}}
+
+pierceexistential2 := let {X,ops} = {*Nat, {c=0, f=lambda x:Nat. succ x}}
+              as {Some X, {c:X, f:X->Nat}}
+ in (ops.f ops.c)

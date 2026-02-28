@@ -40,6 +40,10 @@ data Term
   | TmHead Type TermNode
   | TmTail Type TermNode
   | TmErr String
+  | TmTyAbs Name TermNode
+  | TmTyApp TermNode Type
+  | TmPack Type TermNode Type
+  | TmUnpack String String TermNode TermNode
   deriving (Eq, Show)
 
 data Type
@@ -54,7 +58,32 @@ data Type
   | TyVar Int
   | TyScheme [Type] Type
   | TyErr String
-  deriving (Eq, Show)
+  | TyForAll Name Type
+  | TyForSome Name Type
+  | TyVarFRaw Name
+  | TyVarF Index Index Name
+  deriving Show
+
+instance Eq Type where
+  TyForAll _ ty == TyForAll _ ty' = ty == ty'
+  TyForSome _ ty == TyForSome _ ty' = ty == ty'
+  TyVarF ind1 ind2 _ == TyVarF ind1' ind2' _ =
+    ind1 == ind1' && ind2 == ind2'
+  TyBool == TyBool = True
+  TyNat == TyNat = True
+  TyUnit == TyUnit = True
+  TyArr ty1 ty2 == TyArr ty1' ty2' =
+    ty1 == ty1' && ty2 == ty2'
+  TyRecord xs == TyRecord ys = xs == ys
+  TyVariant xs == TyVariant ys = xs == ys
+  TyList ty1 == TyList ty1' = ty1 == ty1'
+  TyUnknown == TyUnknown = True
+  TyVar n == TyVar n' = n == n'
+  TyScheme tys ty == TyScheme tys' ty' =
+    tys == tys' && ty == ty'
+  TyErr s == TyErr s' = s == s'
+  TyVarFRaw name == TyVarFRaw name' = name == name'    
+  _ == _ = False
 
 data Pattern
   = PVar Name

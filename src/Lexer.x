@@ -4,12 +4,14 @@ module Lexer where
 
 %wrapper "posn"
 
-$white = [\ \t\n\r\b]
-$digit = [0-9]
-$lower = [a-z]
-$alpha = [a-zA-Z]
-$alphaNum = [a-zA-Z0-9]
-
+$white    = [\ \t\n\r\b]
+$digit    = [0-9]
+$lower    = [a-z]
+$aLower   = [a-z]
+$aNLower  = [a-z0-9]
+$aUpper   = [A-Z]
+$aNUpper  = [A-Z0-9]
+$alphNum = [a-zA-Z0-9]
 
 tokens :-
 
@@ -26,6 +28,8 @@ pred                           { \pos _ -> Token pos PRED }
 unit                           { \pos _ -> Token pos UNIT }
 \\                             { \pos _ -> Token pos LAMBDA }
 "λ"                            { \pos _ -> Token pos LAMBDA }
+"Λ"                            { \pos _ -> Token pos LAMBDA }
+lambda                         { \pos _ -> Token pos LAMBDA }
 "."                            { \pos _ -> Token pos DOT }
 ","                            { \pos _ -> Token pos COMMA }
 ":"                            { \pos _ -> Token pos COLON }
@@ -37,11 +41,19 @@ unit                           { \pos _ -> Token pos UNIT }
 "["                            { \pos _ -> Token pos LSQUARE }
 "]"                            { \pos _ -> Token pos RSQUARE }
 "->"                           { \pos _ -> Token pos TYARR }
+"→"                            { \pos _ -> Token pos TYARR }
 "<"                            { \pos _ -> Token pos LANGLE }
 ">"                            { \pos _ -> Token pos RANGLE }
 "_"                            { \pos _ -> Token pos UNDER }
 "="                            { \pos _ -> Token pos ASSIGN }
 "|"                            { \pos _ -> Token pos PIPE }
+"*"                            { \pos _ -> Token pos STAR }
+Some                           { \pos _ -> Token pos FORSOME }
+forsome                        { \pos _ -> Token pos FORSOME }
+"∃"                            { \pos _ -> Token pos FORSOME }
+All                            { \pos _ -> Token pos FORALL }
+forall                         { \pos _ -> Token pos FORALL }
+"∀"                            { \pos _ -> Token pos FORALL }
 case                           { \pos _ -> Token pos CASE }
 of                             { \pos _ -> Token pos OF }
 fix                            { \pos _ -> Token pos FIX }
@@ -59,7 +71,8 @@ Nat                            { \pos _ -> Token pos TYNAT }
 Bool                           { \pos _ -> Token pos TYBOOL }
 Unit                           { \pos _ -> Token pos TYUNIT }
 $digit+                        { \pos s -> Token pos (NUM $ read s) }
-$alpha($alphaNum|"_")*("\''")* { \pos s -> Token pos $ ID s }
+$aLower($alphNum|"_")*("\''")* { \pos s -> Token pos $ IDLOWER s }
+$aUpper($alphNum|"_")*("\''")* { \pos s -> Token pos $ IDUPPER s }
 .                              { \pos s -> Token pos $ ERR ("Lexing error: " ++ s) }
 
 {
@@ -96,6 +109,9 @@ data TokenData
   | UNDER
   | ASSIGN
   | PIPE
+  | STAR
+  | FORSOME
+  | FORALL
   | IN
   | AS
   | LET
@@ -114,7 +130,8 @@ data TokenData
   | TYBOOL
   | TYUNIT
   | NUM Int
-  | ID String
+  | IDLOWER String
+  | IDUPPER String
   | ERR String
   deriving (Show, Eq)
 }

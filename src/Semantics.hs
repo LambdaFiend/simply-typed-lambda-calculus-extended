@@ -4,32 +4,6 @@ import Syntax
 import Helper
 import Display
 
-evalSubst :: TermNode -> TermNode -> TermNode
-evalSubst s t = shift' 0 (-1) (subst' 0 (shift' 0 1 s) t)
-
-isVal :: TermNode -> Bool
-isVal t = let tm = getTm t in
-  case tm of
-    TmAbs _ _ _ -> True
-    TmUnit -> True
-    TmTrue -> True
-    TmFalse -> True
-    TmZero -> True
-    TmSucc nv | isVal nv -> True
-    TmRecord ts -> and $ map (isVal . snd) ts
-    TmVariant x v1 ty | isVal v1 -> True
-    TmWildCard ty t11 -> True
-    TmNil ty -> True
-    TmCons ty v1 v2 | isVal v1 && isVal v2 -> True
-    _ -> False
-
-isPattern :: TermNode -> Bool
-isPattern t = let tm = getTm t in
-  case tm of
-    TmVar _ _ _ -> True
-    TmRecord ts -> and $ map (isPattern . snd) ts
-    _ -> False
-
 match :: Pattern -> TermNode -> [TermNode -> TermNode]
 match (PVar _) t2 = [evalSubst t2]
 match (PRecord ps1) (TermNode _ (TmRecord ts2))
@@ -145,7 +119,22 @@ eval1 t = let tm = getTm t; fi = getFI t in
     TmTail ty t1 | not $ isVal t1 -> let result = eval1 t1 in
       case getTm result of
         TmErr e -> TmErr e
-        _ -> TmTail ty result 
+        _ -> TmTail ty result
+    TmTyApp t1 ty | not $ isVal t1 -> let result = eval1 t1 in
+      case getTm result of
+        TmErr e -> TmErr e
+        _ -> TmTyApp result ty
+    TmTyApp (TermNode _ (TmTyAbs _ t11)) ty -> getTm $ evalTyTermSubst ty t11
+    TmUnpack _ _ (TermNode _ (TmPack ty11 v11 ty12)) t2 | isVal v11 ->
+      getTm $ evalTyTermSubst ty11 (evalSubst (shift' 0 1 v11) t2)
+    TmUnpack x1 x2 t1 t2 | not $ isVal t1 -> let result = eval1 t1 in
+      case getTm result of
+        TmErr e -> TmErr e
+        _ -> TmUnpack x1 x2 result t2
+    TmPack ty1 t1 ty2 | not $ isVal t1 -> let result = eval1 t1 in
+      case getTm result of
+        TmErr e -> TmErr e
+        _ -> TmPack ty1 result ty2
     _ -> TmErr $ "No rule applies" ++ showFileInfo fi
 
 type Counter = Int

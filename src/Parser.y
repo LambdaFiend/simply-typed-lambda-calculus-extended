@@ -38,6 +38,9 @@ unit       { Token pos UNIT }
 "->"       { Token pos TYARR }
 "="        { Token pos ASSIGN }
 "|"        { Token pos PIPE }
+"*"        { Token pos STAR }
+forsome    { Token pos FORSOME }
+forall     { Token pos FORALL }
 in         { Token pos IN }
 as         { Token pos AS }
 let        { Token pos LET }
@@ -55,7 +58,8 @@ tybool     { Token pos TYBOOL }
 tyunit     { Token pos TYUNIT }
 tylist     { Token pos TYLIST }
 num        { Token pos (NUM n) }
-id         { Token pos (ID s) }
+idlower    { Token pos (IDLOWER s) }
+idupper    { Token pos (IDUPPER s) }
 
 %%
 
@@ -63,6 +67,7 @@ Term
   : IfTE   { $1 }
   | Let    { $1 }
   | LetRec { $1 }
+  | Unpack { $1 }
   | Case   { $1 }
   | Seq    { $1 }
   | Abst   { $1 }
@@ -81,8 +86,9 @@ Seq
   | App         { $1 }
 
 App
-  : App Proj { TermNode (getFI $1) $ TmApp $1 $2 }
-  | Proj     { $1 }
+  : App Proj               { TermNode (getFI $1) $ TmApp $1 $2 }
+  | App "[" TypeForAll "]" { TermNode (getFI $1) $ TmTyApp $1 $3 }
+  | Proj                   { $1 }
 
 Proj
   : Proj "." Num  { TermNode (getFI $1) $ TmProj $1 (show $ snd $3) }
@@ -90,8 +96,8 @@ Proj
   | Ascr          { $1 }
 
 Ascr
-  : Atom as TypeArr { TermNode (getFI $1) $ TmAscribe $1 $3 }
-  | Atom             { $1 }
+  : Atom as TypeForAll { TermNode (getFI $1) $ TmAscribe $1 $3 }
+  | Atom               { $1 }
 
 Atom
   : Value          { $1 }
@@ -104,16 +110,21 @@ Atom
   | Tail           { $1 }
   | Variant        { $1 }
   | Fix            { $1 }
+  | Pack           { $1 }
   | "(" Term ")"   { $2 }
   | "{" Record "}" { TermNode (tokenPos $1) $ TmRecord $2 }
 
-Cons : cons "[" TypeArr "]" Atom Atom { TermNode (tokenPos $1) $ TmCons $3 $5 $6 }
+Unpack : let "{" TyVar "," Name "}" "=" Term in Term { TermNode (tokenPos $1) $ TmUnpack (snd $3) (snd $5) $8 $10 }
 
-IsNil : isnil "[" TypeArr "]" Atom { TermNode (tokenPos $1) $ TmIsNil $3 $5 }
+Pack : "{" "*" TypeForAll "," Term "}" as TypeForAll { TermNode (tokenPos $1) $ TmPack $3 $5 $8 }
 
-Head : head "[" TypeArr "]" Atom { TermNode (tokenPos $1) $ TmHead $3 $5 }
+Cons : cons "[" TypeForAll "]" Atom Atom { TermNode (tokenPos $1) $ TmCons $3 $5 $6 }
 
-Tail : tail "[" TypeArr "]" Atom { TermNode (tokenPos $1) $ TmTail $3 $5 }
+IsNil : isnil "[" TypeForAll "]" Atom { TermNode (tokenPos $1) $ TmIsNil $3 $5 }
+
+Head : head "[" TypeForAll "]" Atom { TermNode (tokenPos $1) $ TmHead $3 $5 }
+
+Tail : tail "[" TypeForAll "]" Atom { TermNode (tokenPos $1) $ TmTail $3 $5 }
 
 Fix : fix "(" Term ")" { TermNode (tokenPos $1) $ TmFix $3 }
 
@@ -127,49 +138,60 @@ Record
   | Term                     { [("", $1)] }
 
 Value
-  : true                { TermNode (tokenPos $1) TmTrue }
-  | false               { TermNode (tokenPos $1) TmFalse }
-  | "0"                 { TermNode (tokenPos $1) TmZero }
-  | unit                { TermNode (tokenPos $1) TmUnit }
-  | nil "[" TypeArr "]" { TermNode (tokenPos $1) $ TmNil $3 }
-  | Name                { TermNode (fst $1) $ TmVarRaw (snd $1) }
-  | Num                 { convertNumToSuccs (snd $1) (fst $1) }
+  : true                   { TermNode (tokenPos $1) TmTrue }
+  | false                  { TermNode (tokenPos $1) TmFalse }
+  | "0"                    { TermNode (tokenPos $1) TmZero }
+  | unit                   { TermNode (tokenPos $1) TmUnit }
+  | nil "[" TypeForAll "]" { TermNode (tokenPos $1) $ TmNil $3 }
+  | Name                   { TermNode (fst $1) $ TmVarRaw (snd $1) }
+  | Num                    { convertNumToSuccs (snd $1) (fst $1) }
 
-Name : id { (tokenPos $1, (\(ID s) -> s) $ tokenDat $1) }
+Name : idlower { (tokenPos $1, (\(IDLOWER s) -> s) $ tokenDat $1) }
+
+TyVar : idupper { (tokenPos $1, (\(IDUPPER s) -> s) $ tokenDat $1) }
 
 Num : num { (tokenPos $1, (\(NUM n) -> n) $ tokenDat $1) }
 
 Type
-  : tynat               { TyNat }
-  | tybool              { TyBool }
-  | tyunit              { TyUnit }
-  | TypeList            { $1 }
-  | "(" TypeArr ")"     { $2 }
-  | "{" TypeRecord "}"  { TyRecord $2 }
-  | "<" TypeVariant ">" { TyVariant $2 }
+  : tynat                 { TyNat }
+  | tybool                { TyBool }
+  | tyunit                { TyUnit }
+  | TypeList              { $1 }
+  | "{" TypeRecord "}"    { TyRecord $2 }
+  | "<" TypeVariant ">"   { TyVariant $2 }
+  | "(" TypeForAll ")"    { $2 }
+  | "{" TypeForSome "}"   { $2 }
+  | TyVar                 { TyVarFRaw (snd $1) }
+
+TypeForSome : forsome TyVar "," TypeForAll { TyForSome (snd $2) $4 }
 
 TypeList : tylist Type { TyList $2 }
 
 TypeVariant
-  : TypeVariant "," Name ":" Type { $1 ++ [(snd $3, $5)] }
-  | TypeVariant "," Type          { $1 ++ [("", $3)] }
-  | Name ":" Type                 { [(snd $1, $3)] }
-  | Type                          { [("", $1)] }
+  : TypeVariant "," Name ":" TypeForAll { $1 ++ [(snd $3, $5)] }
+  | TypeVariant "," TypeForAll          { $1 ++ [("", $3)] }
+  | Name ":" TypeForAll                 { [(snd $1, $3)] }
+  | TypeForAll                          { [("", $1)] }
+
+TypeForAll
+  : forall TyVar "." TypeForAll { TyForAll (snd $2) $4 }
+  | TypeArr                     { $1 }
 
 TypeArr
   : Type "->" TypeArr { TyArr $1 $3 }
   | Type              { $1 }
 
 TypeRecord
-  : TypeRecord "," Name ":" Type { $1 ++ [(snd $3, $5)] }
-  | TypeRecord "," Type          { $1 ++ [("", $3)] }
-  | Name ":" Type                { [(snd $1, $3)] }
-  | Type                         { [("", $1)] }
+  : TypeRecord "," Name ":" TypeForAll { $1 ++ [(snd $3, $5)] }
+  | TypeRecord "," TypeForAll          { $1 ++ [("", $3)] }
+  | Name ":" TypeForAll                { [(snd $1, $3)] }
+  | TypeForAll                         { [("", $1)] }
 
 Abst
-  : "\\" Name ":" TypeArr "." Term { TermNode (tokenPos $1) $ TmAbs (snd $2) $4 $6 }
-  | "\\" "_" ":" TypeArr "." Term { TermNode (tokenPos $1) $ TmWildCard $4 $6 }
+  : "\\" Name ":" TypeForAll "." Term { TermNode (tokenPos $1) $ TmAbs (snd $2) $4 $6 }
+  | "\\" "_" ":" TypeForAll "." Term  { TermNode (tokenPos $1) $ TmWildCard $4 $6 }
   | "\\" Name "." Term             { TermNode (tokenPos $1) $ TmAbs (snd $2) TyUnknown $4 }
+  | "\\" TyVar "." Term            { TermNode (tokenPos $1) $ TmTyAbs (snd $2) $4 }
 
 Pattern
   : Name                  { PVar $ snd $1 }
@@ -192,7 +214,6 @@ Succ : succ Atom { TermNode (tokenPos $1) $ TmSucc $2 }
 Pred : pred Atom { TermNode (tokenPos $1) $ TmPred $2 }
 
 IsZero : iszero Atom { TermNode (tokenPos $1) $ TmIsZero $2 }
-
 
 {
 parseError :: [Token] -> Either String a

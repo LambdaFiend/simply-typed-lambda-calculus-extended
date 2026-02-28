@@ -1,7 +1,7 @@
 # Yet Another Lambda Calculus Interpreter
 **Yet Another Lambda Calculus Interpreter**.
 
-**YALCI** is a **Haskell** implementation of **System F** with a variety of **extensions**, **type checking** and **inference** (**Algorithms T and W**). Initially made as what's described but only for **STLC**, **Simply Typed Lambda Calculus**.
+**YALCI** is a **Haskell** implementation of **System F** with a variety of **extensions**, **type checking** and **inference** (**Algorithms T and W**). Initially made as what's described but only for **STLC**, the **Simply Typed Lambda Calculus**.
 
 ## Instructions
 The steps for setting **YALCI** up are as follows:

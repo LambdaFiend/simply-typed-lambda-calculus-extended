@@ -66,10 +66,12 @@ getHelp = (\s -> s ++ "\n") $ intercalate "\n" $
     : "[:showenv, :showe, :senv and :se]\n"
     : ":se\n"
     : "[The commands for showing, typing and evaluating the environment can also be used for environment pages, as follows]\n"
-    : ":se <page_number>"
-    : ":te <page_number>"
-    : ":ee <page_number>"
-    : "[Page numbers start at 1]"
+    : ":se <page_number>\n"
+    : ":te <page_number>\n"
+    : ":ee <page_number>\n"
+    : "[Page numbers start at 1]\n"
+    : "[Programs may be executed directly in the command line; YALCI will show, then type and then evaluate it]\n"
+    : "<program>"
     : []
 
 main :: IO ()
@@ -79,11 +81,12 @@ main = do
   hSetEcho stdin False
   comml <- handleCommHistFile "command_history.txt"
   evaluate (length comml)
+  putStrLn "Enter :? for help with the commands"
   main' [] $ reverse $ lines comml
 
 main' :: Environment -> CommandList -> IO ()
 main' env comml = do
-  putStr "stlce> "
+  putStr "yalci> "
   command <- readLine' comml
   putStrLn ""
   let commToks = (\comm -> case comm of (x:xs) -> map toLower x:xs; [] -> []) $ words command
@@ -174,7 +177,7 @@ main' env comml = do
       return env
     [quit] | elem quit [":q", ":quit"] -> do
       setSGR [SetColor Foreground Vivid Yellow]
-      putStrLn "Leaving STLCE."
+      putStrLn "Leaving yalci."
       setSGR [Reset]
       return [("", TermNode noPos (TmErr "Quit."))]
     [move, name1, name2] | elem move [":move", ":mv", ":m"] -> do
@@ -458,10 +461,10 @@ readLine (left, right) comml1 comml2 = do
           then putStr $ "\ESC[1D \ESC[1D" ++ replicate lenRight ' '
           else do
             putStr "\r"
-            putStr $ "stlce> " ++ replicate (lenLeft + lenRight) ' '
+            putStr $ "yalci> " ++ replicate (lenLeft + lenRight) ' '
             putStr "\r"
-            putStr $ "stlce> " ++ left' ++ right
-            putStr $ "\ESC[" ++ show (length "stlce> " + lenLeft) ++ "G"
+            putStr $ "yalci> " ++ left' ++ right
+            putStr $ "\ESC[" ++ show (length "yalci> " + lenLeft) ++ "G"
         readLine (left', right) comml1 comml2
       [] -> readLine (left, right) comml1 comml2
     '\ESC' -> do
@@ -484,18 +487,18 @@ readLine (left, right) comml1 comml2 = do
           case comml1 of
             (c:cs) -> do
               putStr "\r"
-              putStr $ "stlce> " ++ replicate (length (left ++ right)) ' '
+              putStr $ "yalci> " ++ replicate (length (left ++ right)) ' '
               putStr "\r"
-              putStr $ "stlce> " ++ c
+              putStr $ "yalci> " ++ c
               readLine (c, []) cs ((left++right):comml2)
             [] -> readLine (left, right) comml1 comml2
         'B' -> do
           case comml2 of
             (c:cs) -> do
               putStr "\r"
-              putStr $ "stlce> " ++ replicate (length (left ++ right)) ' '
+              putStr $ "yalci> " ++ replicate (length (left ++ right)) ' '
               putStr "\r"
-              putStr $ "stlce> " ++ c
+              putStr $ "yalci> " ++ c
               readLine (c, []) ((left ++ right):comml1) cs
             [] -> readLine (left, right) comml1 comml2
         key | key /= '\^C' -> readLine (left, right) comml1 comml2

@@ -31,7 +31,7 @@ traverseDownTm f t = TermNode fi $
     TmVariant x t1 ty -> TmVariant x (traverseTm' t1) (fTy ty)
     TmCase t1 ts -> TmCase (traverseTm'' t1) $ map (\(x, (y, z)) -> (x, (y, traverseTm' z))) ts
     TmFix t1 -> TmFix $ traverseTm' t1
-    TmNil ty -> tm
+    TmNil ty -> TmNil $ fTy ty
     TmCons ty t1 t2 -> TmCons (fTy ty) (traverseTm' t1) (traverseTm' t2)
     TmIsNil ty t1 -> TmIsNil (fTy ty) $ traverseTm' t1
     TmHead ty t1 -> TmHead (fTy ty) $ traverseTm' t1
@@ -192,14 +192,14 @@ genIndex ctx t = let tm = getTm t; fi = getFI t; genIndex' = genIndex ctx in
       , genIndex'
       , id :: Type -> Type
       )
-    TmLet p t1 t2 -> (t, genIndex (namesOfPattern p ++ ctx), genIndex', id :: Type -> Type)
-    TmCase t1 ts -> (TermNode fi $ TmCase (traverseDownTm (genIndex ctx) t1) (map (\(x, (y, z)) -> (x, (y, traverseDownTm (genIndex (y:ctx)) z )) ) ts), id', id', id :: Type -> Type)
-    TmVariant x t1 ty -> (TermNode fi $ TmVariant x t1 (genIndexType ctx ty), genIndex', genIndex', id :: Type -> Type)
-    TmTyAbs x t1 -> (t, genIndex (x:ctx), genIndex', id :: Type -> Type)
-    TmTyApp t1 ty -> (TermNode fi $ TmTyApp t1 (genIndexType ctx ty), genIndex', genIndex', id :: Type -> Type)
-    TmUnpack x1 x2 t1 t2 -> (t, genIndex (x2:x1:ctx), genIndex', id :: Type -> Type)
-    TmPack ty1 t1 ty2 -> (TermNode fi $ TmPack (genIndexType ctx ty1) t1 (genIndexType ctx ty2), genIndex', genIndex', id :: Type -> Type)
-    _ -> (t, genIndex', genIndex', id :: Type -> Type)
+    TmLet p t1 t2 -> (t, genIndex (namesOfPattern p ++ ctx), genIndex', genIndexType ctx)
+    TmCase t1 ts -> (TermNode fi $ TmCase (traverseDownTm (genIndex ctx) t1) (map (\(x, (y, z)) -> (x, (y, traverseDownTm (genIndex (y:ctx)) z )) ) ts), id', id', genIndexType ctx)
+    TmVariant x t1 ty -> (t, genIndex', genIndex', genIndexType ctx)
+    TmTyAbs x t1 -> (t, genIndex (x:ctx), genIndex', genIndexType ctx)
+    TmTyApp t1 ty -> (t, genIndex', genIndex', genIndexType ctx)
+    TmUnpack x1 x2 t1 t2 -> (t, genIndex (x2:x1:ctx), genIndex', genIndexType ctx)
+    TmPack ty1 t1 ty2 -> (t, genIndex', genIndex', genIndexType ctx)
+    _ -> (t, genIndex', genIndex', genIndexType ctx)
   where genIndexType :: [Name] -> Type -> Type
         genIndexType ctx ty =
           case ty of
